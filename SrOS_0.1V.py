@@ -6,7 +6,6 @@ import json
 import time
 import shutil
 from pathlib import Path
-import paramiko
 import platform
 import math
 
@@ -188,42 +187,6 @@ def clear_initial_output():
     else:
         os.system('clear')
     print("\033c", end='')
-
-def handle_ssh_connection(host, port, username, password, current_color, COLORS):
-    try:
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(host, port=port, username=username, password=password)
-        print(f"{current_color}Successfully connected to {host}!{COLORS['reset']}")
-        print('')
-        
-        while True:
-            command = input(f"{current_color}{username}@{host}$ {COLORS['reset']}").strip()
-            if command.lower() in ("exit", "quit"):
-                break
-                
-            stdin, stdout, stderr = ssh.exec_command(command)
-            output = stdout.read().decode()
-            if output:
-                print(output)
-            
-            error = stderr.read().decode()
-            if error:
-                print(f"{current_color}ERROR: {error}{COLORS['reset']}")
-        
-        ssh.close()
-        print(f"{current_color}SSH session will ended.{COLORS['reset']}")
-        print('')
-        
-    except paramiko.AuthenticationException:
-        print(f"{current_color}Authentication ERROR! Check login/password.{COLORS['reset']}")
-        print('')
-    except paramiko.SSHException as e:
-        print(f"{current_color}SSH ERROR: {e}{COLORS['reset']}")
-        print('')
-    except Exception as e:
-        print(f"{current_color}Unknown ERROR: {e}{COLORS['reset']}")
-        print('')
 
 def os_info():
     
@@ -520,7 +483,6 @@ def helpCom():
     print("  'mkdir <dir>' - create directory")
     print("  'rmdir <dir>' - remove directory")
     print('')
-    print("  'ssh' - work with ssh")
     print("  'ping <host>' - check network connectivity")
     print('')
     print("  'exit' - exit the os")
@@ -585,17 +547,6 @@ def shell():
 
     elif shellQ == 'ls':
         ls_init()
-
-    elif shellQ.startswith('ssh '):
-        args = shellQ.split()[1:]
-    
-        if len(args) < 4:
-            print(f"{current_color}Use: ssh <host> <port> <username> <password>{COLORS['reset']}")
-            print(f"{current_color}Example: ssh 192.168.1.100 22 admin password123{COLORS['reset']}")
-            print('')
-        else:
-            host, port, username_ssh, password = args[0], int(args[1]), args[2], args[3]
-            handle_ssh_connection(host, port, username_ssh, password, current_color, COLORS)    
 
     elif shellQ == 'cd':
         change_directory("")
@@ -667,7 +618,7 @@ def shell():
             print(f"{current_color}Usage: ping <host>{COLORS['reset']}")
             print('')      
 
-    elif shellQ not in ['help', 'time', 'exit', 'clear', 'clearenv', 'color', 'ls', 'cd', 'ssh', 'calc'] and not shellQ.startswith(('echo', 'cd', 'touch', 'edit', 'rm', 'mkdir', 'rmdir', 'ssh', 'ping')):
+    elif shellQ not in ['help', 'time', 'exit', 'clear', 'clearenv', 'color', 'ls', 'cd', 'calc'] and not shellQ.startswith(('echo', 'cd', 'touch', 'edit', 'rm', 'mkdir', 'rmdir', 'ping')):
         print(f'"{shellQ}" = Unknown command!')
         print('')
     return True                             
