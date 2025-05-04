@@ -229,10 +229,10 @@ def os_info():
     
     print(f"{current_color} 'Creator: neeitr0n (Dmitriy Gagarin)'")    
     print(f"{current_color} 'Name: SrOS'")
-    print(f"{current_color} 'Version: 0.R (dev)'")
+    print(f"{current_color} 'Version: 0.1 (regular)'")
     print(f"{current_color} 'Based on: Python'")
     print(f"{current_color} 'Status: in development'")
-    print(f"{current_color} 'GithubRepo Link: '")
+    print(f"{current_color} 'GithubRepo Link: https://github.com/neeitr0n/SrOS '")
     print('')      
 
 def save_usrconfig():
