@@ -28,16 +28,6 @@ MARKER_FILE = "fl.marker"
 
 REQUIRED_LIBRARIES = ["paramiko"] 
 
-def install_package(package):
-    try:
-        __import__(package)
-    except ImportError:
-        print(f"Download missing library: {package}...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-for lib in REQUIRED_LIBRARIES:
-    install_package(lib)
-
 def qalc():
 
     print("It's a Qalc - Ver. 0.6")
@@ -305,7 +295,7 @@ def clear_environment():
             print(f"ERROR: {target.name}: {e}")
 
 def auto_cd_home():
-    os.chdir('home')
+    os.chdir('home.')
 
 def ping(host):
     host = host.strip("'\"")  
