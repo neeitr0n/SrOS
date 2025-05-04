@@ -9,14 +9,13 @@
 ## **ENG:**
 
 ### 🚀 **About**
-**SrOS** is a Python-based pseudo-operating system that mimics a command shell with SSH support, file operations, and mathematical tools.
+**SrOS** is a Python-based pseudo-operating system that mimics a command shell
 
 ### ✨ **Features**
 - Custom shell (bash-like)
 - File manager (create/delete files and folders)
 - Built-in calculator (Qalc)
 - Custom terminal colors
-- SSH client
 - System time/date
 - Auto-dependency installation
 
