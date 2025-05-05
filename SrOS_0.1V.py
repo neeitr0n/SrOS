@@ -466,6 +466,7 @@ def helpCom():
     print("  'color <color>' - change terminal color")
     print("  'calc' - open a calculator")
     print('')
+    print("  'ls' - list files")
     print("  'cd <directory>' - change directory")
     print("  'touch <file>' - create new file")
     print("  'edit <file>' - edit file content")
