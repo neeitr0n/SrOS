@@ -22,6 +22,8 @@ COLORS = {
 }
 current_color = COLORS["white"]
 
+current_language = ()
+
 LANGUAGE = {"en", "ru", "de", "fr"}
 
 COLOR_CONFIG_FILE = "conf/colorconfig.json"
@@ -29,7 +31,9 @@ USER_CONFIG_FILE = "conf/usrlist.json"
 LANGUAGE_CONFIG_FILE = "conf/langconfig.json"
 MARKER_FILE = "fl.marker"
 
-REQUIRED_LIBRARIES = ["paramiko"] 
+REQUIRED_LIBRARIES = ["paramiko"]
+
+shellQ = ""
 
 def qalc():
 
@@ -180,6 +184,142 @@ def clear_initial_output():
     else:
         os.system('clear')
     print("\033c", end='')
+    
+def restart_program():
+    python = sys.executable
+    os.execl(python, python, *sys.argv)
+    
+def time_shell():
+    print(f"{current_color}Current time and date: {current_datetime}{COLORS['reset']}")
+    print('')
+
+def time_shell_ru():
+    print(f"{current_color}Текущее время и дата: {current_datetime}{COLORS['reset']}")
+    print('')
+
+def time_shell_de():    
+    print(f"{current_color}Aktuelle Uhrzeit und Datum: {current_datetime}{COLORS['reset']}")
+    print('')
+
+def time_shell_fr():
+    print(f"{current_color}Heure et date actuelles: {current_datetime}{COLORS['reset']}")
+    print('')
+    
+def clearenv_shell():
+    print('')
+    confirm = input(f'{current_color}Delete system? Y/N - ').lower().strip()
+    if confirm == "y":
+            clear_environment()
+            print('')
+            print(f'{current_color}System was deleted successfully!')
+            print('')
+            sys.exit()
+    else:
+        print('')
+        print(f'{current_color}Canceled!{COLORS["reset"]}')
+        print('')
+        
+def clearenv_shell_ru():
+    print('')
+    confirm = input(f'{current_color}Удалить систему ? Y/N - ').lower().strip()
+    if confirm == "y":
+            clear_environment()
+            print('')
+            print(f'{current_color}Система была успешно удалена!')
+            print('')
+            sys.exit()
+    else:
+        print('')
+        print(f'{current_color}Отменено!{COLORS["reset"]}')
+        print('')
+        
+def clearenv_shell_de():
+    print('')
+    confirm = input(f'{current_color}System löschen? Y/N - ').lower().strip()
+    if confirm == "y":
+            clear_environment()
+            print('')
+            print(f'{current_color}Das System wurde erfolgreich gelöscht!')
+            print('')
+            sys.exit()
+    else:
+        print('')
+        print(f'{current_color}Abgesagt!{COLORS["reset"]}')
+        print('')
+        
+def clearenv_shell_fr():
+    print('')
+    confirm = input(f'{current_color}Supprimer le système? Y/N - ').lower().strip()
+    if confirm == "y":
+            clear_environment()
+            print('')
+            print(f'{current_color}Le système a été supprimé avec succès!')
+            print('')
+            sys.exit()
+    else:
+        print('')
+        print(f'{current_color}Annulé!{COLORS["reset"]}')
+        print('')
+               
+def color_shell():
+    global current_color
+    color_name = shellQ.split(' ')[1].lower()
+    if color_name in COLORS:
+        current_color = COLORS[color_name]
+        save_colorconfig()
+        print(f'{current_color}Color changed to {color_name}!{COLORS["reset"]}')
+    else:
+        print(f'{current_color}Unknown color! Available: {", ".join(COLORS.keys())}{COLORS["reset"]}')
+    print('')
+    
+def color_shell_ru():
+    global current_color
+    color_name = shellQ.split(' ')[1].lower()
+    if color_name in COLORS:
+        current_color = COLORS[color_name]
+        save_colorconfig()
+        print(f'{current_color}Цвет изменен на {color_name}!{COLORS["reset"]}')
+    else:
+        print(f'{current_color}Неизвестный цвет! Доступны: {", ".join(COLORS.keys())}{COLORS["reset"]}')
+    print('')
+    
+def color_shell_de():
+    global current_color
+    color_name = shellQ.split(' ')[1].lower()
+    if color_name in COLORS:
+        current_color = COLORS[color_name]
+        save_colorconfig()
+        print(f'{current_color}Farbe geändert zu {color_name}!{COLORS["reset"]}')
+    else:
+        print(f'{current_color}Unbekannte Farbe! Verfügbar: {", ".join(COLORS.keys())}{COLORS["reset"]}')
+    print('')
+    
+def color_shell_fr():
+    global current_color
+    color_name = shellQ.split(' ')[1].lower()
+    if color_name in COLORS:
+        current_color = COLORS[color_name]
+        save_colorconfig()
+        print(f'{current_color}La couleur a changé en {color_name}!{COLORS["reset"]}')
+    else:
+        print(f'{current_color}Couleur inconnue ! Disponible: {", ".join(COLORS.keys())}{COLORS["reset"]}')
+    print('')
+    
+def unknown_command_shell():
+    print(f'"{shellQ}" = Unknown command!')
+    print('')
+
+def unknown_command_shell_ru():
+    print(f'"{shellQ}" = Неизвестная команда!')
+    print('')
+
+def unknown_command_shell_de():
+    print(f'"{shellQ}" = Unbekannter Befehl!')
+    print('')
+
+def unknown_command_shell_fr():
+    print(f'"{shellQ}" = Commande inconnue!')
+    print('')                                                                
 
 def os_info():
     
@@ -398,99 +538,145 @@ def directoryCr():
     print("[Installation was successfully!]")
     print('')
 
-def create_file(filename):
-    try:
-        with open(filename, 'w'):
-            pass
-        print(f"{current_color}File '{filename}' created successfully{COLORS['reset']}")
-    except Exception as e:
-        print(f"{current_color}Error creating file: {e}{COLORS['reset']}")
-    print('')
-
-def edit_file(filename):
-    try:
-        if not os.path.exists(filename):
-            print(f"{current_color}File doesn't exist. Create it first? (y/n){COLORS['reset']}")
-            choice = input().lower()
-            if choice == 'y':
-                create_file(filename)
-            else:
-                return
-
-        file_size = os.path.getsize(filename)
-        if file_size > 1024*1024: 
-            print(f"{current_color}Warning: File is large ({file_size} bytes). Continue? (y/n){COLORS['reset']}")
-            if input().lower() != 'y':
-                return
-
-        with open(filename, 'r') as f:
-            content = f.read()
-
-        print(f"{current_color}Editing '{filename}'. Enter your text (Ctrl+D/Ctrl+Z to save):{COLORS['reset']}")
-        print(content)
+def touch_shell():
+    filename = shellQ[6:].strip()
+    if filename:
+        create_file(filename)
+    else:
+        print(f"{current_color}Please specify filename{COLORS['reset']}")
         
-        new_content = []
-        print(f"{current_color}--- Start editing (end with empty line) ---{COLORS['reset']}")
-        while True:
-            try:
-                line = input()
-                new_content.append(line)
-            except EOFError:
-                break
-            if line == "":
-                break
-
-        with open(filename, 'w') as f:
-            f.write('\n'.join(new_content[:-1]))
+def touch_shell_ru():
+    filename = shellQ[6:].strip()
+    if filename:
+        create_file(filename)
+    else:
+        print(f"{current_color}Пожалуйста, укажите имя файла{COLORS['reset']}")
         
-        print(f"{current_color}File '{filename}' saved successfully{COLORS['reset']}")
-    except Exception as e:
-        print(f"{current_color}Error editing file: {e}{COLORS['reset']}")
-    print('')
+def touch_shell_de():
+    filename = shellQ[6:].strip()
+    if filename:
+        create_file(filename)
+    else:
+        print(f"{current_color}Bitte geben Sie den Dateinamen an{COLORS['reset']}")
 
-def remove_file(filename):
-    try:
-        if not os.path.exists(filename):
-            print(f"{current_color}File doesn't exist{COLORS['reset']}")
-            return
-            
-        print(f"{current_color}Are you sure you want to delete '{filename}'? (y/n){COLORS['reset']}")
-        if input().lower() == 'y':
-            os.remove(filename)
-            print(f"{current_color}File '{filename}' removed successfully{COLORS['reset']}")
-        else:
-            print(f"{current_color}Operation canceled{COLORS['reset']}")
-    except Exception as e:
-        print(f"{current_color}Error removing file: {e}{COLORS['reset']}")
-    print('')
+def touch_shell_fr():
+    filename = shellQ[6:].strip()
+    if filename:
+        create_file(filename)
+    else:
+        print(f"{current_color}Veuillez préciser le nom du fichier{COLORS['reset']}")
+        
+def edit_shell():
+    filename = shellQ[5:].strip()
+    if filename:
+        edit_file(filename)
+    else:
+        print(f"{current_color}Please specify filename{COLORS['reset']}")
+        
+def edit_shell_ru():
+    filename = shellQ[5:].strip()
+    if filename:
+        edit_file(filename)
+    else:
+        print(f"{current_color}Пожалуйста, укажите имя файла{COLORS['reset']}")
+        
+def edit_shell_de():
+    filename = shellQ[5:].strip()
+    if filename:
+        edit_file(filename)
+    else:
+        print(f"{current_color}Bitte geben Sie den Dateinamen an{COLORS['reset']}")
+        
+def edit_shell_fr():
+    filename = shellQ[5:].strip()
+    if filename:
+        edit_file(filename)
+    else:
+        print(f"{current_color}Veuillez préciser le nom du fichier{COLORS['reset']}")
+        
+def rm_shell():
+    filename = shellQ[3:].strip()
+    if filename:
+        remove_file(filename)
+    else:
+        print(f"{current_color}Please specify filename{COLORS['reset']}")
+        
+def rm_shell_ru():
+    filename = shellQ[3:].strip()
+    if filename:
+        remove_file(filename)
+    else:
+        print(f"{current_color}Пожалуйста, укажите имя файла{COLORS['reset']}")
+        
+def rm_shell_de():
+    filename = shellQ[3:].strip()
+    if filename:
+        remove_file(filename)
+    else:
+        print(f"{current_color}Bitte geben Sie den Dateinamen an{COLORS['reset']}")
+        
+def rm_shell_fr():
+    filename = shellQ[3:].strip()
+    if filename:
+        remove_file(filename)
+    else:
+        print(f"{current_color}Veuillez préciser le nom du fichier{COLORS['reset']}")
+        
+def mkdir_shell():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        create_directory(dirname)
+    else:
+        print(f"{current_color}Please specify directory name{COLORS['reset']}")
 
-def create_directory(dirname):
-    try:
-        os.mkdir(dirname)
-        print(f"{current_color}Directory '{dirname}' created successfully{COLORS['reset']}")
-    except FileExistsError:
-        print(f"{current_color}Directory already exists{COLORS['reset']}")
-    except Exception as e:
-        print(f"{current_color}Error creating directory: {e}{COLORS['reset']}")
-    print('')
+def mkdir_shell_ru():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        create_directory(dirname)
+    else:
+        print(f"{current_color}Пожалуйста, укажите имя директории{COLORS['reset']}")
+        
+def mkdir_shell_de():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        create_directory(dirname)
+    else:
+        print(f"{current_color}Bitte geben Sie den Verzeichnisnamen an{COLORS['reset']}")
+        
+def mkdir_shell_fr():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        create_directory(dirname)
+    else:
+        print(f"{current_color}Veuillez préciser le nom du répertoire{COLORS['reset']}")
+        
+def rmdir_shell():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        remove_directory(dirname)
+    else:
+        print(f"{current_color}Please specify directory name{COLORS['reset']}")
 
-def remove_directory(dirname):
-    try:
-        if not os.path.exists(dirname):
-            print(f"{current_color}Directory doesn't exist{COLORS['reset']}")
-            return
-            
-        if os.listdir(dirname):
-            print(f"{current_color}Directory is not empty. Delete anyway? (y/n){COLORS['reset']}")
-            if input().lower() != 'y':
-                print(f"{current_color}Operation canceled{COLORS['reset']}")
-                return
+def rmdir_shell_ru():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        remove_directory(dirname)
+    else:
+        print(f"{current_color}Пожалуйста, укажите имя директории{COLORS['reset']}")
 
-        os.rmdir(dirname)
-        print(f"{current_color}Directory '{dirname}' removed successfully{COLORS['reset']}")
-    except Exception as e:
-        print(f"{current_color}Error removing directory: {e}{COLORS['reset']}")
-    print('')                    
+def rmdir_shell_de():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        remove_directory(dirname)
+    else:
+        print(f"{current_color}Bitte geben Sie den Verzeichnisnamen an{COLORS['reset']}")
+
+def rmdir_shell_fr():
+    dirname = shellQ[6:].strip()
+    if dirname:
+        remove_directory(dirname)
+    else:
+        print(f"{current_color}Veuillez préciser le nom du répertoire{COLORS['reset']}")                        
 
 def helpCom():
     print(f"{current_color}List of command:")
@@ -502,7 +688,7 @@ def helpCom():
     print("  'color <color>' - change terminal color")
     print("  'calc' - open a calculator")
     print("  'love' - print <3 text")
-    print(" 'language' - select system language")
+    print("  'language' - select system language")
     print('')
     print("  'ls' - list files")
     print("  'cd <directory>' - change directory")
@@ -515,6 +701,7 @@ def helpCom():
     print("  'ping <host>' - check network connectivity")
     print('')
     print("  'exit' - exit the os")
+    print("  'reboot' - reboot the os")
     print("  'clear' - clean terminal")
     print("  'clearenv' - delete the whole system!")
     print(f"{COLORS['reset']}")
@@ -542,6 +729,7 @@ def helpCom_ru():
     print(" 'ping <host>' - проверить сетевое подключение")
     print('')
     print(" 'exit' - выйти из ОС")
+    print(" 'reboot' - перезагрузить систему")
     print(" 'clear' - очистить терминал")
     print(" 'clearenv' - удалить всю систему!")
     print(f"{COLORS['reset']}")
@@ -785,6 +973,7 @@ def helpCom_de():
     print('')
     print(" 'ping <host>' - Netzwerkverbindung prüfen")
     print('')
+    print(" 'reboot - Starten Sie das Betriebssystem neu'")
     print(" 'exit' - Betriebssystem verlassen")
     print(" 'clear' - Terminal bereinigen")
     print(" 'clearenv' - gesamtes System löschen!")
@@ -1030,6 +1219,7 @@ def helpCom_fr():
     print(" 'ping <host>' - vérifier la connexion réseau")
     print('')
     print(" 'exit' - quitter le système d'exploitation")
+    print(" 'reboot' - redémarrer le système d'exploitation")
     print(" 'clear' - effacer le terminal")
     print(" 'clearenv' - supprimer tout le système!")
     print(f"{COLORS['reset']}")
@@ -1249,7 +1439,101 @@ def remove_directory_fr(dirname):
         print(f"{current_color}Répertoire '{dirname}' supprimé avec succès{COLORS['reset']}")
     except Exception as e:
         print(f"{current_color}Erreur lors de la suppression du répertoire: {e}{COLORS['reset']}")
-    print('')            
+    print('')
+    
+def create_file(filename):
+    try:
+        with open(filename, 'w'):
+            pass
+        print(f"{current_color}File '{filename}' created successfully{COLORS['reset']}")
+    except Exception as e:
+        print(f"{current_color}Error creating file: {e}{COLORS['reset']}")
+    print('')
+
+def edit_file(filename):
+    try:
+        if not os.path.exists(filename):
+            print(f"{current_color}File doesn't exist. Create it first? (y/n){COLORS['reset']}")
+            choice = input().lower()
+            if choice == 'y':
+                create_file(filename)
+            else:
+                return
+
+        file_size = os.path.getsize(filename)
+        if file_size > 1024*1024: 
+            print(f"{current_color}Warning: File is large ({file_size} bytes). Continue? (y/n){COLORS['reset']}")
+            if input().lower() != 'y':
+                return
+
+        with open(filename, 'r') as f:
+            content = f.read()
+
+        print(f"{current_color}Editing '{filename}'. Enter your text (Ctrl+D/Ctrl+Z to save):{COLORS['reset']}")
+        print(content)
+        
+        new_content = []
+        print(f"{current_color}--- Start editing (end with empty line) ---{COLORS['reset']}")
+        while True:
+            try:
+                line = input()
+                new_content.append(line)
+            except EOFError:
+                break
+            if line == "":
+                break
+
+        with open(filename, 'w') as f:
+            f.write('\n'.join(new_content[:-1]))
+        
+        print(f"{current_color}File '{filename}' saved successfully{COLORS['reset']}")
+    except Exception as e:
+        print(f"{current_color}Error editing file: {e}{COLORS['reset']}")
+    print('')
+
+def remove_file(filename):
+    try:
+        if not os.path.exists(filename):
+            print(f"{current_color}File doesn't exist{COLORS['reset']}")
+            return
+            
+        print(f"{current_color}Are you sure you want to delete '{filename}'? (y/n){COLORS['reset']}")
+        if input().lower() == 'y':
+            os.remove(filename)
+            print(f"{current_color}File '{filename}' removed successfully{COLORS['reset']}")
+        else:
+            print(f"{current_color}Operation canceled{COLORS['reset']}")
+    except Exception as e:
+        print(f"{current_color}Error removing file: {e}{COLORS['reset']}")
+    print('')
+
+def create_directory(dirname):
+    try:
+        os.mkdir(dirname)
+        print(f"{current_color}Directory '{dirname}' created successfully{COLORS['reset']}")
+    except FileExistsError:
+        print(f"{current_color}Directory already exists{COLORS['reset']}")
+    except Exception as e:
+        print(f"{current_color}Error creating directory: {e}{COLORS['reset']}")
+    print('')
+
+def remove_directory(dirname):
+    try:
+        if not os.path.exists(dirname):
+            print(f"{current_color}Directory doesn't exist{COLORS['reset']}")
+            return
+            
+        if os.listdir(dirname):
+            print(f"{current_color}Directory is not empty. Delete anyway? (y/n){COLORS['reset']}")
+            if input().lower() != 'y':
+                print(f"{current_color}Operation canceled{COLORS['reset']}")
+                return
+
+        os.rmdir(dirname)
+        print(f"{current_color}Directory '{dirname}' removed successfully{COLORS['reset']}")
+    except Exception as e:
+        print(f"{current_color}Error removing directory: {e}{COLORS['reset']}")
+    print('')                
 
 def start_message_ascii():
     print('  ______   _______    ______    ______          ______      _______         __     __ ')
@@ -1331,11 +1615,13 @@ def language_select():
     print("French - fr")
     while True:
         language = input("> ").strip()
-        if language:
+        if language in LANGUAGE:
             save_languageconfig()
             print(f"Language: , {language} was selected!")
             print('')
-            break
+            restart_program()
+        else:
+            print(f"Invalid language! Please choose from: {', '.join(LANGUAGE)}")    
         
 def language_select_ru():
     global language
@@ -1348,11 +1634,13 @@ def language_select_ru():
     print("French - fr")
     while True:
         language = input("> ").strip()
-        if language:
+        if language in LANGUAGE:
             save_languageconfig()
             print(f"Language: , {language} was selected!")
             print('')
-            break
+            restart_program()
+        else:
+            print(f"Неизвестный язык! Пожалуйста, выберите из:: {', '.join(LANGUAGE)}")    
         
 def language_select_de():
     global language
@@ -1365,11 +1653,13 @@ def language_select_de():
     print("French - fr")
     while True:
         language = input("> ").strip()
-        if language:
+        if language in LANGUAGE:
             save_languageconfig()
             print(f"Language: , {language} was selected!")
             print('')
-            break
+            restart_program()
+        else:
+            print(f"Ungültige Sprache! Bitte wählen Sie aus: {', '.join(LANGUAGE)}")    
         
 def language_select_fr():
     global language
@@ -1382,11 +1672,13 @@ def language_select_fr():
     print("French - fr")
     while True:
         language = input("> ").strip()
-        if language:
+        if language in LANGUAGE:
             save_languageconfig()
             print(f"Language: , {language} was selected!")
             print('')
-            break          
+            restart_program()
+        else:
+            print(f"Langue invalide ! Veuillez choisir parmi: {', '.join(LANGUAGE)}")            
         
 def language_selectfirst():
     global language
@@ -1400,11 +1692,13 @@ def language_selectfirst():
     print("French - fr")
     while True:
         language = input("> ").strip()
-        if language:
+        if language in LANGUAGE:
             save_languageconfig()
             print(f"Language: , {language} was selected!")
             print('')
-            break                      
+            break
+        else:
+            print(f"Invalid language! Please choose from: {', '.join(LANGUAGE)}")                      
 
 def shell():
     global shellQ, current_datetime, echoText, path, confirm, current_color
@@ -1418,25 +1712,13 @@ def shell():
         helpCom() 
 
     elif shellQ == 'time':
-        print(f"{current_color}Current time and date: {current_datetime}{COLORS['reset']}")
-        print('')
+        time_shell()
 
     elif shellQ == 'clear':
         os.system('cls' if os.name == 'nt' else 'clear')
 
     elif shellQ == "clearenv":
-        print('')
-        confirm = input(f'{current_color}Delete system? Y/N - ').lower().strip()
-        if confirm == "y":
-                clear_environment()
-                print('')
-                print(f'{current_color}System was deleted successfully!')
-                print('')
-                exit()
-        else:
-            print('')
-            print(f'{current_color}Canceled!{COLORS["reset"]}')
-            print('')
+        clearenv_shell()
 
     elif shellQ == 'ls':
         ls_init()
@@ -1453,6 +1735,9 @@ def shell():
     elif shellQ == 'love':
         love_text()
         
+    elif shellQ == 'reboot':
+        restart_program()     
+        
     elif shellQ == 'language':
         language_select()                 
     
@@ -1461,53 +1746,26 @@ def shell():
         change_directory(dir_arg)    
 
     elif shellQ.startswith('touch '):
-        filename = shellQ[6:].strip()
-        if filename:
-            create_file(filename)
-        else:
-            print(f"{current_color}Please specify filename{COLORS['reset']}")
+        touch_shell()
 
     elif shellQ.startswith('edit '):
-        filename = shellQ[5:].strip()
-        if filename:
-            edit_file(filename)
-        else:
-            print(f"{current_color}Please specify filename{COLORS['reset']}")
+        edit_shell()
 
     elif shellQ.startswith('rm '):
-        filename = shellQ[3:].strip()
-        if filename:
-            remove_file(filename)
-        else:
-            print(f"{current_color}Please specify filename{COLORS['reset']}")
+        rm_shell()
 
     elif shellQ.startswith('mkdir '):
-        dirname = shellQ[6:].strip()
-        if dirname:
-            create_directory(dirname)
-        else:
-            print(f"{current_color}Please specify directory name{COLORS['reset']}")
+        mkdir_shell()
 
     elif shellQ.startswith('rmdir '):
-        dirname = shellQ[6:].strip()
-        if dirname:
-            remove_directory(dirname)
-        else:
-            print(f"{current_color}Please specify directory name{COLORS['reset']}")                              
+        rmdir_shell()                             
 
     elif shellQ.startswith('echo '):
         print(f'{current_color}{shellQ[5:]}{COLORS["reset"]}')
         print('')  
 
     elif shellQ.startswith('color '):
-        color_name = shellQ.split(' ')[1].lower()
-        if color_name in COLORS:
-            current_color = COLORS[color_name]
-            save_colorconfig()
-            print(f'{current_color}Color changed to {color_name}!{COLORS["reset"]}')
-        else:
-            print(f'{current_color}Unknown color! Available: {", ".join(COLORS.keys())}{COLORS["reset"]}')
-        print('')  
+        color_shell()  
 
     elif shellQ.startswith('ping '):
         host = shellQ[5:].strip()
@@ -1518,17 +1776,15 @@ def shell():
             print('')      
 
     elif shellQ not in ['help', 'time', 'exit', 'clear', 'clearenv', 'color', 'ls', 'cd', 'calc', 'language'] and not shellQ.startswith(('echo', 'cd', 'touch', 'edit', 'rm', 'mkdir', 'rmdir', 'ping')):
-        print(f'"{shellQ}" = Unknown command!')
-        print('')
+        unknown_command_shell()
     return True 
-
-current_language = ()
                           
 if first_run_checker():
     directoryCr()
     save_colorconfig()
     register_user()
     language_select()
+    restart_program()
 
 else:
     load_colorconfig()
@@ -1550,6 +1806,15 @@ else:
         remove_directory = remove_directory_ru
         language_select = language_select_ru
         startMessage = startMessage_ru
+        time_shell = time_shell_ru
+        clearenv_shell = clearenv_shell_ru
+        touch_shell = touch_shell_ru
+        edit_shell = edit_shell_ru()
+        rm_shell = rm_shell_ru()
+        mkdir_shell = mkdir_shell_ru()
+        rmdir_shell = rmdir_shell_ru()
+        color_shell = color_shell_ru
+        unknown_command_shell = unknown_command_shell_ru
     if current_language == 'de':
         helpCom = helpCom_de
         change_directory = change_directory_de
@@ -1564,6 +1829,15 @@ else:
         remove_directory = remove_directory_de
         language_select = language_select_de
         startMessage = startMessage_de
+        time_shell = time_shell_de
+        clearenv_shell = clearenv_shell_de
+        touch_shell = touch_shell_de
+        edit_shell = edit_shell_de
+        rm_shell = rm_shell_de
+        mkdir_shell = mkdir_shell_de
+        rmdir_shell = rmdir_shell_de
+        color_shell = color_shell_de
+        unknown_command_shell = unknown_command_shell_de
     if current_language == 'fr':
         helpCom = helpCom_fr
         change_directory = change_directory_fr
@@ -1577,11 +1851,19 @@ else:
         create_directory = create_directory_fr
         remove_directory = remove_directory_fr
         language_select = language_select_fr
-        startMessage = startMessage_fr        
+        startMessage = startMessage_fr
+        time_shell = time_shell_fr
+        clearenv_shell = clearenv_shell_fr
+        touch_shell = touch_shell_fr
+        edit_shell = edit_shell_fr
+        rm_shell = rm_shell_fr
+        mkdir_shell = mkdir_shell_fr
+        rmdir_shell = rmdir_shell_fr
+        color_shell = color_shell_fr 
+        unknown_command_shell = unknown_command_shell_fr    
     if not load_languageconfig():
         language_selectfirst()    
     startMessage()
-    print(current_language)
 
     while True:
         shell()
